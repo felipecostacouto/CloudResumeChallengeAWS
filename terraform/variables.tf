@@ -10,5 +10,5 @@ variable "website_index_document" {
 
 variable "assets_path" {
     description = "Path to assets folder"
-    default = "./assets"
+    default = "./frontEnd/assets"
 }
