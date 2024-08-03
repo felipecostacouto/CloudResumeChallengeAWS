@@ -15,11 +15,33 @@ var typed2 = new Typed('#typed_2', {
 
 
 const counter = document.querySelector(".counter-number");
+
 async function updateCounter() {
-    let response = await fetch(
-        ""
-    );
-    let data = await response.json();
-    counter.innerHTML = `👀 Views: ${data}`;
+    try {
+        let response = await fetch("", {
+            method: 'POST'
+        });
+
+        // Check if the response is OK
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Parse the response JSON
+        let data = await response.json();
+        console.log('API Response:', data); // Log the response data
+
+        // Use the response body directly
+        if (typeof data.body === 'number') {
+            counter.innerHTML = `👀 Views: ${data.body}`;
+        } else {
+            throw new Error('Invalid data format in body');
+        }
+    } catch (error) {
+        console.error('Error fetching views:', error);
+        counter.innerHTML = `👀 Views: Error (${error.message})`;
+    }
 }
-updateCounter();
+
+// Call the updateCounter function when the page loads
+document.addEventListener('DOMContentLoaded', updateCounter);
