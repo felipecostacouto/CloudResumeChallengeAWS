@@ -1,3 +1,16 @@
+module "dynamo_db" {
+  source = "./terraform/modules/dynamo_db"
+
+  region     = var.region
+  table_name = "crc_dynamodb"
+  tags = {
+    Environment = "dev"
+    Project     = "crc"
+  }
+}
+
+
+
 # Create S3 bucket
 resource "aws_s3_bucket" "website_bucket" {
     bucket = var.bucket_name
@@ -6,32 +19,32 @@ resource "aws_s3_bucket" "website_bucket" {
 resource "aws_s3_object" "index_html" {
     bucket = aws_s3_bucket.website_bucket.id
     key = "index.html"
-    source = "./index.html"
-    etag = filemd5("./index.html")
+    source = "./frontEnd/index.html"
+    etag = filemd5("./frontEnd/index.html")
     content_type = "text/html"
 }
 
 resource "aws_s3_object" "error_html" {
     bucket = aws_s3_bucket.website_bucket.id
     key = "error.html"
-    source = "./error.html"
-    etag = filemd5("./error.html")
+    source = "./frontEnd/error.html"
+    etag = filemd5("./frontEnd/error.html")
     content_type = "text/html"
 }
 
 resource "aws_s3_object" "script_js" {
     bucket = aws_s3_bucket.website_bucket.id
     key = "script.js"
-    source = "./script.js"
-    etag = filemd5("./script.js")
+    source = "./frontEnd/script.js"
+    etag = filemd5("./frontEnd/script.js")
     content_type = "text/javascript"
 }
 
 resource "aws_s3_object" "style_css" {
     bucket = aws_s3_bucket.website_bucket.id
     key = "style.css"
-    source = "./style.css"
-    etag = filemd5("./style.css")
+    source = "./frontEnd/style.css"
+    etag = filemd5("./frontEnd/style.css")
     content_type = "text/css"
 }
 

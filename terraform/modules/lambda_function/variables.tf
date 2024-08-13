@@ -1,32 +1,20 @@
-variable "filename" {
-  type = string
+variable "region" {
+  description = "The AWS region to deploy the Lambda function"
+  type        = string
+  default     = "us-west-2"
 }
 
-variable "function_name" {
-  type = string
+variable "lambda_name" {
+  description = "The name of the Lambda function"
+  type        = string
 }
 
-variable "role_arn" {
-  type = string
+variable "lambda_exec_role_name" {
+  description = "The name of the Lambda execution role"
+  type        = string
 }
 
-variable "handler" {
-  type = string
-}
-
-variable "runtime" {
-  type = string
-}
-
-variable "source_code_hash" {
-  type = string
-}
-
-variable "environment_variables" {
-  type = map(string)
-  default = {}
-}
-
-variable "source_arn" {
-  type = string
+variable "dynamodb_table_name" {
+  description = "The name of the DynamoDB table"
+  type        = string
 }

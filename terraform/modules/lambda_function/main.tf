@@ -1,47 +1,63 @@
-resource "aws_lambda_function" "this" {
-  filename         = var.filename
-  function_name    = var.function_name
-  role             = var.role_arn
-  handler          = var.handler
-  runtime          = var.runtime
-  source_code_hash = var.source_code_hash
-
+resource "aws_lambda_function" "lambda" {
+  filename         = "lambda_function.zip"
+  function_name    = var.lambda_name
+  role             = aws_iam_role.lambda_exec.arn
+  handler          = "lambda_function.lambda_handler"
+  runtime          = "python3.8"
+  source_code_hash = filebase64sha256("lambda_function.zip")
   environment {
-    variables = var.environment_variables
+    variables = {
+      TABLE_NAME = var.dynamodb_table_name
+    }
   }
 }
 
-resource "aws_lambda_permission" "api_gateway_lambda" {
-  statement_id  = "AllowAPIGatewayInvoke"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.this.function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = var.source_arn
+resource "aws_iam_role" "lambda_exec" {
+  name = var.lambda_exec_role_name
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
 }
 
-resource "aws_iam_role" "iam_for_lambda" {
-  name = "iam_for_lambda"
-
-  assume_role_policy =  <<EOF
-
-{
-  "Version": "",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
+resource "aws_iam_role_policy" "lambda_exec_policy" {
+  name   = "${var.lambda_exec_role_name}_policy"
+  role   = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Effect   = "Allow"
+        Resource = "arn:aws:logs:*:*:*"
       },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
+      {
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem"
+        ]
+        Effect   = "Allow"
+        Resource = "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamodb_table_name}"
+      }
+    ]
+  })
 }
 
-data "archive_file" "zip" {
-  type        = "zip"
-  source_dir  = "${path.module}/backEnd/"
-  output_path = "${path.module}/packedlamdba.zip"
+data "aws_caller_identity" "current" {}
+
+output "lambda_function_arn" {
+  value = aws_lambda_function.lambda.arn
 }
