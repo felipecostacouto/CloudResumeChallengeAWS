@@ -4,12 +4,31 @@ module "dynamo_db" {
   region     = var.region
   table_name = "crc_dynamodb"
   tags = {
-    Environment = "dev"
+    Environment = "Prod"
     Project     = "crc"
   }
 }
 
+module "lambda_function" {
+  source               = "./terraform/modules/lambda_function"
+  region               = var.region
+  lambda_name          = var.lambda_name
+  lambda_exec_role_name = var.lambda_exec_role_name
+  lambda_zip_path      = "path/to/your/lambda_function.zip"
+  dynamodb_table_name  = module.dynamodb.dynamodb_table_name
+  dynamodb_table_arn   = module.dynamodb.dynamodb_table_arn
+  api_gateway_rest_api_arn = module.api_gateway.api_gateway_rest_api_arn
+}
 
+module "api_gateway" {
+  source               = "./terraform/modules/api_gateway"
+  region               = var.region
+  lambda_function_arn  = module.lambda_function.lambda_function_arn
+  api_name             = "crc_api"
+  api_description      = "API for CRC Lambda"
+  api_path_part        = "{proxy+}"
+  http_method          = "POST"
+}
 
 # Create S3 bucket
 resource "aws_s3_bucket" "website_bucket" {

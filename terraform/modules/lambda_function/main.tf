@@ -3,7 +3,7 @@ resource "aws_lambda_function" "lambda" {
   function_name    = var.lambda_name
   role             = aws_iam_role.lambda_exec.arn
   handler          = "lambda_function.lambda_handler"
-  runtime          = "python3.8"
+  runtime          = "python3.9"
   source_code_hash = filebase64sha256("lambda_function.zip")
   environment {
     variables = {
@@ -47,7 +47,8 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
       {
         Action = [
           "dynamodb:GetItem",
-          "dynamodb:PutItem"
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem"
         ]
         Effect   = "Allow"
         Resource = "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamodb_table_name}"
@@ -56,7 +57,14 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
   })
 }
 
-data "aws_caller_identity" "current" {}
+# Permission for API Gateway to invoke the Lambda
+resource "aws_lambda_permission" "apigw_lambda" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${var.api_gateway_rest_api_arn}/*/*"
+}
 
 output "lambda_function_arn" {
   value = aws_lambda_function.lambda.arn
