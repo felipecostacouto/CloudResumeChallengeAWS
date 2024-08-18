@@ -28,22 +28,3 @@ variable "http_method" {
   default     = "POST"
 }
 
-variable "lambda_function_arn" {
-  description = "The ARN of the Lambda function to integrate with"
-  type        = string
-}
-
-variable "lambda_name" {
-  description = "The name of the Lambda function"
-  type        = string
-}
-
-variable "lambda_exec_role_name" {
-  description = "The name of the Lambda execution role"
-  type        = string
-}
-
-variable "dynamodb_table_name" {
-  description = "The name of the DynamoDB table"
-  type        = string
-}

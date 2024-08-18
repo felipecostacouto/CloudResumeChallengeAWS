@@ -31,7 +31,7 @@ resource "aws_api_gateway_integration" "integration" {
   http_method             = aws_api_gateway_method.method.http_method
   integration_http_method = var.http_method
   type                    = "AWS_PROXY"
-  uri                     = var.lambda_function_arn
+  uri                     = module.lambda_function.lambda_arn
 }
 
 resource "aws_api_gateway_method_response" "method_response" {
@@ -43,6 +43,12 @@ resource "aws_api_gateway_method_response" "method_response" {
   response_models = {
     "application/json" = "Empty"
   }
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true,
+    "method.response.header.Access-Control-Allow-Methods" = true,
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
 }
 
 resource "aws_api_gateway_integration_response" "integration_response" {
@@ -52,6 +58,8 @@ resource "aws_api_gateway_integration_response" "integration_response" {
   status_code = aws_api_gateway_method_response.method_response.status_code
 
   response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type'",
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,OPTIONS'",
     "method.response.header.Access-Control-Allow-Origin" = "'*'"
   }
 
@@ -68,6 +76,11 @@ resource "aws_api_gateway_deployment" "deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
 }
 
-output "api_url" {
-  value = aws_api_gateway_deployment.deployment.invoke_url
+
+# Permission for API Gateway to invoke the Lambda
+resource "aws_lambda_permission" "apigw_lambda" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda.function_name
+  principal     = "apigateway.amazonaws.com"
 }

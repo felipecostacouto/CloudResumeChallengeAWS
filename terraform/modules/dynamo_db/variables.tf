@@ -1,7 +1,7 @@
 variable "region" {
   description = "The AWS region to deploy the DynamoDB table"
   type        = string
-  default     = "us-west-2"
+  default     = "sa-east-1"
 }
 
 variable "table_name" {
@@ -13,5 +13,5 @@ variable "table_name" {
 variable "tags" {
   description = "Tags to assign to the DynamoDB table"
   type        = map(string)
-  default     = {}
+  default     = "crc_table"
 }

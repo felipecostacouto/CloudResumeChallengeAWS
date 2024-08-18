@@ -29,7 +29,7 @@ def lambda_handler(event, context):
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Headers": "Content-Type",
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "OPTIONS,POST",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
             },
             "body": views_count
         }
@@ -42,7 +42,7 @@ def lambda_handler(event, context):
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Headers": "Content-Type",
                 "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "OPTIONS,POST",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
             },
             "body": json.dumps({"error": str(e)})
         }

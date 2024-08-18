@@ -1,4 +1,6 @@
-// Typed.js initialization
+// This is the placeholder that will be replaced with the actual API URL
+const apiUrl = "YOUR_API_URL_HERE";
+
 var typed = new Typed('#typed', {
     strings: ["DevOps Student.", "Learner.", "Cloud Enthusiast."],
     typeSpeed: 50,
@@ -18,7 +20,7 @@ const counter = document.querySelector(".counter-number");
 
 async function updateCounter() {
     try {
-        let response = await fetch("", {
+        let response = await fetch(apiUrl, {
             method: 'POST'
         });
 
@@ -33,13 +35,13 @@ async function updateCounter() {
 
         // Use the response body directly
         if (typeof data.body === 'number') {
-            counter.innerHTML = `👀 Views: ${data.body}`;
+            counter.innerHTML = `👀 this page has been viewed ${data.body} times.`;
         } else {
             throw new Error('Invalid data format in body');
         }
     } catch (error) {
         console.error('Error fetching views:', error);
-        counter.innerHTML = `👀 Views: Error (${error.message})`;
+        counter.innerHTML = `👀 this page has been viewed Error (${error.message}) times.`;
     }
 }
 
