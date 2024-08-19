@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from botocore.exceptions import ClientError
 
-from backEnd import lambda_handler
+from backEnd.lambda_handler import lambda_handler
 
 @pytest.fixture
 def mock_dynamodb_table():
