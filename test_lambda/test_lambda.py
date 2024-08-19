@@ -2,18 +2,14 @@ import pytest
 from unittest.mock import patch, MagicMock
 from botocore.exceptions import ClientError
 
+@pytest.fixture(autouse=True)
+def mock_boto3_resource():
+    with patch('backEnd.lambda_handler.boto3.resource') as mock_resource:
+        yield mock_resource
+
 from backEnd.lambda_handler import lambda_handler
 
 @pytest.fixture
-
-def mock_aws_credentials():
-    """Mocked AWS Credentials for moto."""
-    patch.dict('os.environ', {
-        'AWS_ACCESS_KEY_ID': 'testing',
-        'AWS_SECRET_ACCESS_KEY': 'testing',
-        'AWS_DEFAULT_REGION': 'us-east-1'
-    }).start()
-    
 def mock_dynamodb_table():
 
     with patch('backEnd.dynamodb.Table') as mock_table:
