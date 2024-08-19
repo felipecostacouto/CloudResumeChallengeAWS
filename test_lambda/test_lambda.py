@@ -5,6 +5,15 @@ from botocore.exceptions import ClientError
 from backEnd.lambda_handler import lambda_handler
 
 @pytest.fixture
+
+def mock_aws_credentials():
+    """Mocked AWS Credentials for moto."""
+    patch.dict('os.environ', {
+        'AWS_ACCESS_KEY_ID': 'testing',
+        'AWS_SECRET_ACCESS_KEY': 'testing',
+        'AWS_DEFAULT_REGION': 'us-east-1'
+    }).start()
+    
 def mock_dynamodb_table():
 
     with patch('backEnd.dynamodb.Table') as mock_table:
