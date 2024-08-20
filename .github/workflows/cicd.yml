@@ -21,14 +21,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -U pytest boto3
       
-      - name: Debug Python Path
-        run: echo $PYTHONPATH
-        
-      - name: List Directory Structure
-        run: ls -R
-      
       - name: Run Python Tests
-        run: python -m pytest test_lambda/test_lambda.py
+        run: |
+          export AWS_DEFAULT_REGION='sa-east-1'
+          python -m pytest test_lambda/test_lambda.py
       
 
       - name: Set up Node.js
