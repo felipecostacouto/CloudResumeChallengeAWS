@@ -22,7 +22,7 @@ jobs:
           pip install -U pytest boto3
 
       - name: Run Python Tests
-        run: pytest
+        run: PYTHONPATH=./backEnd pytest test_lambda/test_lambda.py
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
