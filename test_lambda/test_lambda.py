@@ -1,45 +1,34 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 from botocore.exceptions import ClientError
 
 from backEnd.lambda_handler import lambda_handler
 
-@pytest.fixture(autouse=True)
-def mock_aws_credentials():
-    """Mocked AWS Credentials and region for tests."""
-    with patch.dict('os.environ', {
-        'AWS_ACCESS_KEY_ID': 'testing',
-        'AWS_SECRET_ACCESS_KEY': 'testing',
-        'AWS_DEFAULT_REGION': 'us-east-1'
-    }):
-        yield
-
 @pytest.fixture
-def mock_dynamodb_table():
-    with patch('backEnd.lambda_handler.dynamodb.Table') as mock_table:
-        yield mock_table
+def mock_dynamodb():
+    mock_dynamodb = MagicMock()
+    mock_table = mock_dynamodb.Table.return_value
+    mock_table.get_item.return_value = {'Item': {'views': 5}}
+    return mock_dynamodb
 
-def test_lambda_handler_success(mock_dynamodb_table):
-    mock_table_instance = mock_dynamodb_table.return_value
-    mock_table_instance.get_item.return_value = {'Item': {'views': 5}}
-    
+def test_lambda_handler_success(mock_dynamodb):
     event = {}
     context = {}
-    response = lambda_handler(event, context)
+    response = lambda_handler(event, context, dynamodb=mock_dynamodb)
     
     assert response['statusCode'] == 200
-    assert response['body'] == 6  # Since the view count should be incremented by 1
-
-def test_lambda_handler_dynamodb_error(mock_dynamodb_table):
-    mock_table_instance = mock_dynamodb_table.return_value
-    mock_table_instance.get_item.side_effect = ClientError(
+    assert response['body'] == 6 
+    
+def test_lambda_handler_dynamodb_error(mock_dynamodb):
+    mock_table = mock_dynamodb.Table.return_value
+    mock_table.get_item.side_effect = ClientError(
         error_response={'Error': {'Code': 'SomeError', 'Message': 'An error occurred'}},
         operation_name='GetItem'
     )
 
     event = {}
     context = {}
-    response = lambda_handler(event, context)
-
+    response = lambda_handler(event, context, dynamodb=mock_dynamodb)
+    
     assert response['statusCode'] == 500
-    assert "error" in response['body']  # Check if an error message is in the body
+    assert "error" in response['body']
