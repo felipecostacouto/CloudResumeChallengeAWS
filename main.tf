@@ -15,19 +15,28 @@ module "lambda_function" {
   lambda_name          = var.lambda_name
   lambda_exec_role_name = var.lambda_exec_role_name
   lambda_zip_path      = "./backEnd/lambda_function.zip"
-  dynamodb_table_name  = module.dynamodb.dynamodb_table_name
-  dynamodb_table_arn   = module.dynamodb.dynamodb_table_arn
-  api_gateway_rest_api_arn = module.api_gateway.api_gateway_rest_api_arn
+
+  dynamodb_table_name  = module.dynamo_db.dynamodb_table_name
+  dynamodb_table_arn   = module.dynamo_db.dynamodb_table_arn
 }
 
 module "api_gateway" {
   source               = "./terraform/modules/api_gateway"
   region               = var.region
+  lambda_function_name = module.lambda_function.lambda_function_name
   lambda_function_arn  = module.lambda_function.lambda_function_arn
   api_name             = "crc_api"
   api_description      = "API for CRC Lambda"
   api_path_part        = "{proxy+}"
   http_method          = "POST"
+}
+
+
+module "cloudfront" {
+  source                  = "./terraform/modules/cloudfront"
+  bucket_domain_name      = module.s3.bucket_regional_domain_name
+  bucket_name             = module.s3.bucket_name
+  website_index_document  = var.website_index_document
 }
 
 module "s3" {
@@ -41,9 +50,3 @@ module "s3" {
   origin_access_identity_s3_canonical_user_id = module.cloudfront.origin_access_identity_s3_canonical_user_id
 }
 
-module "cloudfront" {
-  source                  = "./terraform/modules/cloudfront"
-  bucket_domain_name      = module.s3.bucket_name.bucket_regional_domain_name
-  bucket_name             = module.s3.bucket_name
-  website_index_document  = var.website_index_document
-}

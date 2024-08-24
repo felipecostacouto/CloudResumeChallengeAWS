@@ -13,10 +13,10 @@ resource "aws_acm_certificate" "cert" {
 
 # DNS validation via Route 53
 resource "aws_route53_record" "cert_validation" {
-  name    = aws_acm_certificate.cert.domain_validation_options[0].resource_record_name
-  type    = aws_acm_certificate.cert.domain_validation_options[0].resource_record_type
+  name    = tolist(aws_acm_certificate.cert.domain_validation_options)[0].resource_record_name
+  records = [tolist(aws_acm_certificate.cert.domain_validation_options)[0].resource_record_value]
+  type    = tolist(aws_acm_certificate.cert.domain_validation_options)[0].resource_record_type
   zone_id = var.route53_zone_id
-  records = [aws_acm_certificate.cert.domain_validation_options[0].resource_record_value]
   ttl     = 60
 }
 
@@ -28,8 +28,8 @@ resource "aws_acm_certificate_validation" "cert_validation" {
 
 resource "aws_cloudfront_distribution" "cloudfront_distribution" {
   origin {
-    domain_name = aws_s3_bucket.website_bucket.bucket_regional_domain_name
-    origin_id   = "S3-${aws_s3_bucket.website_bucket.id}"
+    domain_name = var.bucket_name
+    origin_id   = "S3-${var.bucket_name}"
 
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path
@@ -44,7 +44,7 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-${aws_s3_bucket.website_bucket.id}"
+    target_origin_id = "S3-${var.bucket_name}"
 
     forwarded_values {
       query_string = false

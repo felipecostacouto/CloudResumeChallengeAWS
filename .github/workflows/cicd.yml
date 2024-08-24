@@ -21,6 +21,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -U pytest boto3
       
+      
       - name: Run Python Tests
         run: |
           export AWS_DEFAULT_REGION='sa-east-1'

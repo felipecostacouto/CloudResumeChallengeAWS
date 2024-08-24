@@ -46,21 +46,22 @@ resource "aws_s3_object" "assets" {
   key         = "assets/${each.value}"
   source      = "${var.assets_path}/${each.value}"
   etag        = filemd5("${var.assets_path}/${each.value}")
-  content_type = lookup(var.content_type_mapping, fileextension(each.value), "application/octet-stream")
+  content_type = lookup(var.content_type_mapping, regex("([^.]*)$", each.value)[0], "application/octet-stream")
 }
 
 resource "aws_s3_bucket_policy" "website_bucket_policy" {
   bucket = aws_s3_bucket.website_bucket.id
 
   policy = jsonencode({
+    Version = "2012-10-17"
     Statement = [
       {
-        Action = "s3:GetObject",
-        Effect = "Allow",
-        Resource = "${aws_s3_bucket.website_bucket.arn}/*",
+        Effect = "Allow"
         Principal = {
-          CanonicalUser = aws_cloudfront_origin_access_identity.origin_access_identity.s3_canonical_user_id
+          CanonicalUser = var.origin_access_identity_s3_canonical_user_id
         }
+        Action = "s3:GetObject"
+        Resource = "${aws_s3_bucket.website_bucket.arn}/*"
       }
     ]
   })

@@ -31,3 +31,9 @@ variable "route53_zone_id" {
   type        = string
   default     = "Z02613272WL9AKG4RIX16"
 }
+
+variable "region" {
+    type = string
+    description = "The region in which to create/manage resources"
+    default = "sa-east-1"
+}

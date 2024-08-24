@@ -47,3 +47,8 @@ variable "content_type_mapping" {
     ".pdf"  = "application/pdf"
   }
 }
+
+variable "origin_access_identity_s3_canonical_user_id" {
+  description = "The canonical user ID for the CloudFront origin access identity"
+  type        = string
+}

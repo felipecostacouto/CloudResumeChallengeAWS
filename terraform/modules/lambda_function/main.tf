@@ -7,7 +7,7 @@ data "archive_file" "lambda_code" {
 resource "aws_lambda_function" "lambda" {
   filename         = var.lambda_zip_path
   function_name    = var.lambda_name
-  role             = aws_iam_role.lambda_exec.arn
+  role             = aws_iam_role.lambda_exec_role.arn
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.9"
   environment {
@@ -42,7 +42,7 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role_policy" "lambda_exec_policy" {
   name   = "${var.lambda_exec_role_name}_policy"
-  role   = aws_iam_role.lambda_exec.id
+  role   = aws_iam_role.lambda_exec_role.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [

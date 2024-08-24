@@ -22,9 +22,13 @@ variable "dynamodb_table_name" {
   default     = "crc_dynamodb"
 }
 
-
 variable "lambda_zip_path" {
   description = "The path to the ZIP file containing the Lambda function code"
   type        = string
   default     = "./backEnd/lambda_function.zip"
+}
+
+variable "dynamodb_table_arn" {
+  description = "The ARN of the DynamoDB table"
+  type        = string
 }

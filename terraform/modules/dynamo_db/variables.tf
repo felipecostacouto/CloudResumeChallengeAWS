@@ -13,5 +13,7 @@ variable "table_name" {
 variable "tags" {
   description = "Tags to assign to the DynamoDB table"
   type        = map(string)
-  default     = "crc_table"
+  default     = {
+    Name = "crc_table"
+  }
 }
