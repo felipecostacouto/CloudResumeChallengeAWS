@@ -1,7 +1,7 @@
 variable "bucket_name" {
   description = "The name of the S3 bucket"
   type        = string
-  default     = "crc_project_1402ab"
+  default     = "crc-project-1402ab"
 }
 
 variable "index_html_path" {

@@ -19,7 +19,7 @@ variable "api_description" {
 variable "api_path_part" {
   description = "The path part of the API resource"
   type        = string
-  default     = "my-resource"
+  default     = "views"
 }
 
 variable "http_method" {

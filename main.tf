@@ -31,14 +31,6 @@ module "api_gateway" {
   http_method          = "POST"
 }
 
-
-module "cloudfront" {
-  source                  = "./terraform/modules/cloudfront"
-  bucket_domain_name      = module.s3.bucket_regional_domain_name
-  bucket_name             = module.s3.bucket_name
-  website_index_document  = var.website_index_document
-}
-
 module "s3" {
   source                  = "./terraform/modules/s3"
   bucket_name             = var.bucket_name
@@ -48,5 +40,12 @@ module "s3" {
   style_css_path          = "./frontEnd/style.css"
   assets_path             = "./frontEnd/assets"
   origin_access_identity_s3_canonical_user_id = module.cloudfront.origin_access_identity_s3_canonical_user_id
+}
+
+module "cloudfront" {
+  source                  = "./terraform/modules/cloudfront"
+  bucket_domain_name      = module.s3.bucket_regional_domain_name
+  bucket_name             = module.s3.bucket_name
+  website_index_document  = var.website_index_document
 }
 

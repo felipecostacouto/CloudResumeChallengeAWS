@@ -1,6 +1,6 @@
 variable "region" {
   description = "AWS region"
-  default     = "us-west-2"
+  default     = "us-east-1"
 }
 
 variable "lambda_name" {
@@ -15,7 +15,7 @@ variable "lambda_exec_role_name" {
 
 variable "bucket_name" {
   description = "Bucket name for S3"
-  default     = "cloudResumeChallenge-bucket-1402ab"
+  default     = "crc-project-1402ab"
 }
 
 variable "website_index_document" {

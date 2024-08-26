@@ -1,7 +1,7 @@
 variable "region" {
   description = "The AWS region to deploy the Lambda function"
   type        = string
-  default     = "sa-east-1"
+  default     = "us-east-1"
 }
 
 variable "lambda_name" {

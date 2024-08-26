@@ -2,9 +2,9 @@ resource "aws_s3_bucket" "website_bucket" {
   bucket = var.bucket_name
 
   # Bucket Policy to allow CloudFront access
-  lifecycle {
-    prevent_destroy = true
-  }
+  //lifecycle {
+    //prevent_destroy = true
+  //}
 }
 
 resource "aws_s3_object" "index_html" {

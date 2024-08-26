@@ -23,6 +23,12 @@ variable "website_error_document" {
 variable "domain_name" {
   description = "The domain name for the website"
   type        = string
+  default     = "felipecostacouto.link"
+}
+
+variable "subdomain" {
+  description = "The subdomain for the website"
+  type        = string
   default     = "www.felipecostacouto.link"
 }
 
@@ -35,5 +41,5 @@ variable "route53_zone_id" {
 variable "region" {
     type = string
     description = "The region in which to create/manage resources"
-    default = "sa-east-1"
+    default = "us-east-1"
 }

@@ -1,12 +1,15 @@
 resource "aws_dynamodb_table" "crc_table" {
   name           = var.table_name
-  billing_mode   = "PAY_PER_REQUEST"
+  billing_mode   = "PROVISIONED"
   hash_key       = "id"
 
   attribute {
     name = "id"
-    type = "N"
+    type = "S"
   }
+
+  read_capacity  = 1
+  write_capacity = 1
 
   tags = var.tags
 }
@@ -17,7 +20,7 @@ resource "aws_dynamodb_table_item" "dynamodb_table_item" {
 
   item = <<ITEM
   {
-    "id": {"N": "0"},
+    "id": {"S": "0"},
     "views": {"N": "0"}
   }
   ITEM
