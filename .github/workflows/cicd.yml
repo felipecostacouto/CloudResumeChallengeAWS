@@ -5,11 +5,20 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write # This is required for requesting the JWT
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -20,13 +29,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -U pytest boto3
-      
-      
+
       - name: Run Python Tests
         run: |
-          export AWS_DEFAULT_REGION='sa-east-1'
+          export AWS_DEFAULT_REGION='us-east-1'
           python -m pytest test_lambda/test_lambda.py
-      
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -50,20 +57,16 @@ jobs:
         run: terraform init
 
       - name: Apply Terraform
+        id: apply
         run: terraform apply -auto-approve
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Sync S3 Bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --follow-symlinks --delete --exclude '.git/*' --size-only
         env:
-          AWS_S3_BUCKET: $(terraform output -raw s3_bucket_name)
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'sa-east-1'
+          AWS_S3_BUCKET: ${{ steps.apply.outputs.s3_bucket_name }}
+          AWS_REGION: 'us-east-1'
           SOURCE_DIR: 'frontEnd'
 
   invalidate-cloudfront-distribution:
@@ -73,11 +76,9 @@ jobs:
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
         env:
-          DISTRIBUTION: $(terraform output -raw cloudfront_distribution_id)
+          DISTRIBUTION: ${{ steps.deploy.outputs.cloudfront_distribution_id }}
           PATHS: "/*"
-          AWS_REGION: "sa-east-1"
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "us-east-1"
 
   update-script:
     needs: invalidate-cloudfront-distribution
@@ -89,17 +90,15 @@ jobs:
 
       - name: Update script.js with API URL
         run: |
-          sed -i 's|PLACEHOLDER_URL|${{ env.API_URL }}|' frontEnd/script.js
+          sed -i "s|PLACEHOLDER_URL|${{ env.API_URL }}|" frontEnd/script.js
 
       - name: Sync Updated Script
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --follow-symlinks --delete --exclude '.git/*' --size-only
         env:
-          AWS_S3_BUCKET: $(terraform output -raw s3_bucket_name)
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'sa-east-1'
+          AWS_S3_BUCKET: ${{ steps.apply.outputs.s3_bucket_name }}
+          AWS_REGION: 'us-east-1'
           SOURCE_DIR: 'frontEnd'
           
   cypress-tests:
