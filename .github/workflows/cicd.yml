@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: configure aws credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
@@ -47,6 +47,9 @@ jobs:
   deploy:
     needs: test 
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v2
 
@@ -58,25 +61,44 @@ jobs:
 
       - name: Apply Terraform
         id: apply
-        run: terraform apply -auto-approve
+        run: |
+          terraform apply -auto-approve
+          echo "s3_bucket_name=$(terraform output -raw s3_bucket_name)" >> $GITHUB_ENV
+          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
+          echo "api_url=$(terraform output -raw api_url)" >> $GITHUB_ENV
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
 
       - name: Sync S3 Bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --follow-symlinks --delete --exclude '.git/*' --size-only
         env:
-          AWS_S3_BUCKET: ${{ steps.apply.outputs.s3_bucket_name }}
+          AWS_S3_BUCKET: ${{ env.s3_bucket_name }}
           AWS_REGION: 'us-east-1'
           SOURCE_DIR: 'frontEnd'
 
   invalidate-cloudfront-distribution:
     needs: deploy
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
+
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
         env:
-          DISTRIBUTION: ${{ steps.deploy.outputs.cloudfront_distribution_id }}
+          DISTRIBUTION: ${{ env.cloudfront_distribution_id }}
           PATHS: "/*"
           AWS_REGION: "us-east-1"
 
@@ -85,7 +107,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Retrieve API Gateway URL
-        id: api_url
         run: echo "API_URL=$(terraform output -raw api_url)" >> $GITHUB_ENV
 
       - name: Update script.js with API URL
@@ -97,7 +118,7 @@ jobs:
         with:
           args: --follow-symlinks --delete --exclude '.git/*' --size-only
         env:
-          AWS_S3_BUCKET: ${{ steps.apply.outputs.s3_bucket_name }}
+          AWS_S3_BUCKET: ${{ env.s3_bucket_name }}
           AWS_REGION: 'us-east-1'
           SOURCE_DIR: 'frontEnd'
           
