@@ -1,10 +1,10 @@
 import pytest
-from moto import mock_dynamodb2
+from moto import mock_dynamodb
 import boto3
 from botocore.exceptions import ClientError
 from backEnd.lambda_handler import lambda_handler
 
-@mock_dynamodb2
+@mock_dynamodb
 def setup_dynamodb():
     # Set up the mock DynamoDB table
     dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
@@ -36,7 +36,7 @@ def setup_dynamodb():
 
     return table
 
-@mock_dynamodb2
+@mock_dynamodb
 def test_lambda_handler_success():
     setup_dynamodb()
 
@@ -48,7 +48,7 @@ def test_lambda_handler_success():
     assert response['statusCode'] == 200
     assert response['body'] == 11  # Since we start with 10 and increment by 1
 
-@mock_dynamodb2
+@mock_dynamodb
 def test_lambda_handler_dynamodb_error(monkeypatch):
     def mock_get_item(Key):
         raise ClientError(
@@ -74,4 +74,3 @@ def test_lambda_handler_dynamodb_error(monkeypatch):
 
     assert response['statusCode'] == 500
     assert 'error' in json.loads(response['body'])
-
