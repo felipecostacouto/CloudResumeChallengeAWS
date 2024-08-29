@@ -73,6 +73,7 @@ jobs:
           echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
           echo "api_url=$(terraform output -raw api_url)" >> $GITHUB_ENV
 
+
       - name: Sync S3 Bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
