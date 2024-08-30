@@ -7,7 +7,6 @@ table = dynamodb.Table("crc_dynamodb")
 
 def lambda_handler(event, context):
     try:
-        
         response = table.get_item(Key={
             'id':'0'
         })
