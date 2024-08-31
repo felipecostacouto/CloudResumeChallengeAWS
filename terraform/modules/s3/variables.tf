@@ -52,9 +52,3 @@ variable "origin_access_identity_s3_canonical_user_id" {
   description = "The canonical user ID for the CloudFront origin access identity"
   type        = string
 }
-
-variable "state_bucket_name" {
-  description = "The name of the S3 bucket used for storing Terraform state files"
-  type        = string
-  default     = "crc-project-1402ab-tfstate"
-}

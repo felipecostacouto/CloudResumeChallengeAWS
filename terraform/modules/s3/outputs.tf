@@ -13,7 +13,3 @@ output "bucket_regional_domain_name" {
 output "bucket_name" {
   value = aws_s3_bucket.website_bucket.bucket
 }
-
-output "state_bucket_name" {
-  value = aws_s3_bucket.state_bucket.bucket
-}

@@ -2,16 +2,6 @@ resource "aws_s3_bucket" "website_bucket" {
   bucket = var.bucket_name
 }
 
-# S3 bucket for Terraform state
-resource "aws_s3_bucket" "state_bucket" {
-  bucket = var.state_bucket_name
-  
-  # Uncomment to prevent destruction
-  # lifecycle {
-  #   prevent_destroy = true
-  # }
-}
-
 resource "aws_s3_object" "index_html" {
   bucket = aws_s3_bucket.website_bucket.id
   key    = "index.html"
