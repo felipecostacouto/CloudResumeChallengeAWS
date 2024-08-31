@@ -1,7 +1,7 @@
 # Terraform backend configuration to use a separate S3 bucket for state
 terraform {
   backend "s3" {
-    bucket         = "crc-project-1402ab-tfstate" // create resource before roaling CD again
+    bucket         =  var.state_bucket_name 
     key            = "terraform/state.tfstate"
     region         = "us-east-1"
   }

@@ -22,3 +22,9 @@ variable "website_index_document" {
   description = "Website index document"
   default     = "index.html"
 }
+
+variable "state_bucket_name" {
+  description = "The name of the S3 bucket used for storing Terraform state."
+  type        = string
+  default     = "crc-project-1402ab-tfstate"
+}

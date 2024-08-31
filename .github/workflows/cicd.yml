@@ -68,17 +68,15 @@ jobs:
         id: apply
         run: |
           terraform apply -auto-approve
-          echo "bucket_name=$(terraform output -raw website_bucket_name | tr -d '\r')" >> $GITHUB_ENV
-          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id | tr -d '\r')" >> $GITHUB_ENV
-          echo "api_url=$(terraform output -raw api_url | tr -d '\r')" >> $GITHUB_ENV
-          echo "state_bucket_name=$(terraform output -raw state_bucket_name | tr -d '\r')" >> $GITHUB_ENV
+          echo "bucket_name=$(terraform output -raw bucket_name)" >> $GITHUB_ENV
+          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
+          echo "api_url=$(terraform output -raw api_url)" >> $GITHUB_ENV
 
       - name: Debug Environment Variables
         run: |
           echo "bucket_name=${{ env.bucket_name }}"
           echo "cloudfront_distribution_id=${{ env.cloudfront_distribution_id }}"
           echo "api_url=${{ env.api_url }}"
-          echo "state_bucket_name=${{ env.state_bucket_name }}"
 
       - name: Sync S3 Bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
@@ -167,4 +165,4 @@ jobs:
 
       - name: Terraform Destroy
         run: |
-          terraform destroy -auto-approve -var="state_bucket_name=${{ env.state_bucket_name }}"
+          terraform destroy -auto-approve -var="state_bucket_name=${{ secrets.STATE_BUCKET_NAME }}"
