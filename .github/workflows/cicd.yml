@@ -59,7 +59,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v3
 
       - name: Initialize Terraform
         run: terraform init
@@ -72,6 +72,13 @@ jobs:
           echo "bucket_name=$(terraform output -raw bucket_name | tr -d '\r')" >> $GITHUB_ENV
           echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id | tr -d '\r')" >> $GITHUB_ENV
           echo "api_url=$(terraform output -raw api_url | tr -d '\r')" >> $GITHUB_ENV
+
+      - name: Debug Environment Variables
+        run: |
+          echo "bucket_name=${{ env.bucket_name }}"
+          echo "cloudfront_distribution_id=${{ env.cloudfront_distribution_id }}"
+          echo "api_url=${{ env.api_url }}"
+        
 
       - name: Sync S3 Bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
@@ -153,7 +160,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v3
 
       - name: Initialize Terraform
         run: terraform init
