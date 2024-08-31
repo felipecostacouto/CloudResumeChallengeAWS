@@ -56,5 +56,5 @@ variable "origin_access_identity_s3_canonical_user_id" {
 variable "state_bucket_name" {
   description = "The name of the S3 bucket used for storing Terraform state files"
   type        = string
-  default = "crc-project-1402ab-tfstate"
+  default     = "crc-project-1402ab-tfstate"
 }
