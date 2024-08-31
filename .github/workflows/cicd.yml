@@ -68,22 +68,24 @@ jobs:
         id: apply
         run: |
           terraform apply -auto-approve
-          echo "s3_bucket_name=$(terraform output -raw s3_bucket_name | tr -d '\r')" >> $GITHUB_ENV
+          echo "bucket_name=$(terraform output -raw website_bucket_name | tr -d '\r')" >> $GITHUB_ENV
           echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id | tr -d '\r')" >> $GITHUB_ENV
           echo "api_url=$(terraform output -raw api_url | tr -d '\r')" >> $GITHUB_ENV
+          echo "state_bucket_name=$(terraform output -raw state_bucket_name | tr -d '\r')" >> $GITHUB_ENV
 
       - name: Debug Environment Variables
         run: |
-          echo "s3_bucket_name=${{ env.s3_bucket_name }}"
+          echo "bucket_name=${{ env.bucket_name }}"
           echo "cloudfront_distribution_id=${{ env.cloudfront_distribution_id }}"
           echo "api_url=${{ env.api_url }}"
+          echo "state_bucket_name=${{ env.state_bucket_name }}"
 
       - name: Sync S3 Bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --follow-symlinks --delete --exclude '.git/*' --size-only
         env:
-          AWS_S3_BUCKET: ${{ env.s3_bucket_name }}
+          AWS_S3_BUCKET: ${{ env.bucket_name }}
           AWS_REGION: 'us-east-1'
           SOURCE_DIR: 'frontEnd'
 
@@ -123,7 +125,7 @@ jobs:
         with:
           args: --follow-symlinks --delete --exclude '.git/*' --size-only
         env:
-          AWS_S3_BUCKET: ${{ env.s3_bucket_name }}
+          AWS_S3_BUCKET: ${{ env.bucket_name }}
           AWS_REGION: 'us-east-1'
           SOURCE_DIR: 'frontEnd'
 
@@ -164,4 +166,5 @@ jobs:
         run: terraform init
 
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+        run: |
+          terraform destroy -auto-approve -var="state_bucket_name=${{ env.state_bucket_name }}"

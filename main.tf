@@ -1,3 +1,12 @@
+# Terraform backend configuration to use a separate S3 bucket for state
+terraform {
+  backend "s3" {
+    bucket         = module.s3.state_bucket_name
+    key            = "terraform/state.tfstate"
+    region         = var.region
+  }
+}
+
 module "dynamo_db" {
   source = "./terraform/modules/dynamo_db"
 
