@@ -19,6 +19,18 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-1
+      
+      - name: Print AWS Environment Variables
+        run: env | grep AWS
+  
+      - name: Check AWS CLI Version
+        run: aws --version
+  
+      - name: Debug AWS CLI Configuration
+        run: aws configure list
+  
+      - name: Debug OIDC Credentials
+        run: aws sts get-caller-identity
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -138,15 +150,6 @@ jobs:
         run: npx cypress run --headless
         env:
           API_URL: ${{ env.API_URL }}
-
-  debug:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print AWS Environment Variables
-        run: env | grep AWS
-
-      - name: Debug OIDC Credentials
-        run: aws sts get-caller-identity
 
   cleanup:
     needs: deploy
