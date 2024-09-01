@@ -91,12 +91,17 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-1
 
+      - name: Debug CloudFront Distribution ID
+        run: |
+          echo "CloudFront Distribution ID: ${{ env.cloudfront_distribution_id }}"
+
       - name: Invalidate CloudFront
         run: |
-            aws cloudfront create-invalidation \
-              --distribution-id ${{ env.cloudfront_distribution_id }} \
-              --paths "/*" \
-              --region us-east-1
+          if [ -z "${{ env.cloudfront_distribution_id }}" ]; then
+            echo "Error: cloudfront_distribution_id is not set"
+            exit 1
+          fi
+          aws cloudfront create-invalidation --distribution-id ${{ env.cloudfront_distribution_id }} --paths "/*" --region us-east-1
 
   update-script:
     needs: invalidate-cloudfront-distribution
@@ -136,7 +141,7 @@ jobs:
       - invalidate-cloudfront-distribution
       - update-script
       - cypress-tests
-    if: failure()  # Run only if the deploy job fails
+    if: failure()  # Run only if any of the dependencies fail
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
