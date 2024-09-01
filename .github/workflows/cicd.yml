@@ -72,7 +72,13 @@ jobs:
           echo "bucket_name=$(terraform output -raw bucket_name | tr -d '\r')" >> $GITHUB_ENV
           echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id | tr -d '\r')" >> $GITHUB_ENV
           echo "api_url=$(terraform output -raw api_url | tr -d '\r')" >> $GITHUB_ENV
-        
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
+
       - name: Sync S3 Bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
