@@ -77,7 +77,6 @@ jobs:
         run: |
           aws s3 sync frontEnd s3://${{ env.bucket_name }} --delete --exclude '.git/*' --size-only --region us-east-1
 
-
   invalidate-cloudfront-distribution:
     needs: deploy
     runs-on: ubuntu-latest
@@ -91,17 +90,18 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-1
 
-      - name: Debug CloudFront Distribution ID
+      - name: Debug Environment Variables
         run: |
-          echo "CloudFront Distribution ID: ${{ env.cloudfront_distribution_id }}"
+            echo "bucket_name: ${{ env.bucket_name }}"
+            echo "cloudfront_distribution_id: ${{ env.cloudfront_distribution_id }}"
+            echo "api_url: ${{ env.api_url }}"
 
       - name: Invalidate CloudFront
         run: |
-          if [ -z "${{ env.cloudfront_distribution_id }}" ]; then
-            echo "Error: cloudfront_distribution_id is not set"
-            exit 1
-          fi
-          aws cloudfront create-invalidation --distribution-id ${{ env.cloudfront_distribution_id }} --paths "/*" --region us-east-1
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ env.cloudfront_distribution_id }} \
+            --paths "/*" \
+            --region us-east-1
 
   update-script:
     needs: invalidate-cloudfront-distribution
