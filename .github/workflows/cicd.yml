@@ -78,7 +78,7 @@ jobs:
         with:
           args: --follow-symlinks --delete --exclude '.git/*' --size-only
         env:
-          AWS_S3_BUCKET: ${{ steps.apply.outputs.bucket_name }}
+          AWS_S3_BUCKET: ${{ env.bucket_name }}
           AWS_REGION: 'us-east-1'
           SOURCE_DIR: 'frontEnd'
 
