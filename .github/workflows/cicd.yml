@@ -72,20 +72,16 @@ jobs:
           echo "bucket_name=$(terraform output -raw bucket_name | tr -d '\r')" >> $GITHUB_ENV
           echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id | tr -d '\r')" >> $GITHUB_ENV
           echo "api_url=$(terraform output -raw api_url | tr -d '\r')" >> $GITHUB_ENV
-      
-      - name: List S3 Objects
-        run: |
-          aws s3 ls s3://${{ env.bucket_name }} --debug
-        
-
+          
       - name: Sync S3 Bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --follow-symlinks --delete --exclude '.git/*' --size-only
+          bucket: ${{ env.bucket_name }}
+          source-dir: frontEnd
         env:
-          AWS_S3_BUCKET: ${{ env.bucket_name }}
           AWS_REGION: 'us-east-1'
-          SOURCE_DIR: 'frontEnd'
+
 
   invalidate-cloudfront-distribution:
     needs: deploy
@@ -122,10 +118,10 @@ jobs:
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --follow-symlinks --delete --exclude '.git/*' --size-only
+          bucket: ${{ env.bucket_name }}
+          source-dir: frontEnd
         env:
-          AWS_S3_BUCKET: ${{ env.bucket_name }}
           AWS_REGION: 'us-east-1'
-          SOURCE_DIR: 'frontEnd'
 
   cypress-tests:
     needs: update-script
