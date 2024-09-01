@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-1
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-1
@@ -72,12 +72,6 @@ jobs:
           echo "bucket_name=$(terraform output -raw bucket_name | tr -d '\r')" >> $GITHUB_ENV
           echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id | tr -d '\r')" >> $GITHUB_ENV
           echo "api_url=$(terraform output -raw api_url | tr -d '\r')" >> $GITHUB_ENV
-      
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-east-1
 
       - name: Sync S3 Bucket
         uses: jakejarvis/s3-sync-action@v0.5.1
@@ -88,7 +82,6 @@ jobs:
           AWS_REGION: 'us-east-1'
           SOURCE_DIR: 'frontEnd'
 
-
   invalidate-cloudfront-distribution:
     needs: deploy
     runs-on: ubuntu-latest
@@ -97,7 +90,7 @@ jobs:
       contents: read
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-1
@@ -146,6 +139,15 @@ jobs:
         env:
           API_URL: ${{ env.API_URL }}
 
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print AWS Environment Variables
+        run: env | grep AWS
+
+      - name: Debug OIDC Credentials
+        run: aws sts get-caller-identity
+
   cleanup:
     needs: deploy
     if: failure()  # Run only if the deploy job fails
@@ -154,7 +156,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-1
