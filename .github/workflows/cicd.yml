@@ -92,11 +92,11 @@ jobs:
           aws-region: us-east-1
 
       - name: Invalidate CloudFront
-        uses: chetan/invalidate-cloudfront-action@v2
-        env:
-          DISTRIBUTION: ${{ env.cloudfront_distribution_id }}
-          PATHS: "/*"
-          AWS_REGION: "us-east-1"
+        run: |
+            aws cloudfront create-invalidation \
+              --distribution-id ${{ env.cloudfront_distribution_id }} \
+              --paths "/*" \
+              --region us-east-1
 
   update-script:
     needs: invalidate-cloudfront-distribution
@@ -112,7 +112,7 @@ jobs:
       - name: Sync Updated Script
         run: |
           aws s3 sync frontEnd s3://${{ env.bucket_name }} --delete --exclude '.git/*' --size-only --region us-east-1
-          
+
   cypress-tests:
     needs: update-script
     runs-on: ubuntu-latest
@@ -131,7 +131,11 @@ jobs:
           API_URL: ${{ env.API_URL }}
 
   cleanup:
-    needs: deploy
+    needs: 
+      - deploy
+      - invalidate-cloudfront-distribution
+      - update-script
+      - cypress-tests
     if: failure()  # Run only if the deploy job fails
     runs-on: ubuntu-latest
     steps:
