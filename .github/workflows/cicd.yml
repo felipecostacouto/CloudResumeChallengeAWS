@@ -72,15 +72,10 @@ jobs:
           echo "bucket_name=$(terraform output -raw bucket_name | tr -d '\r')" >> $GITHUB_ENV
           echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id | tr -d '\r')" >> $GITHUB_ENV
           echo "api_url=$(terraform output -raw api_url | tr -d '\r')" >> $GITHUB_ENV
-          
+
       - name: Sync S3 Bucket
-        uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          args: --follow-symlinks --delete --exclude '.git/*' --size-only
-          bucket: ${{ env.bucket_name }}
-          source-dir: frontEnd
-        env:
-          AWS_REGION: 'us-east-1'
+        run: |
+          aws s3 sync frontEnd s3://${{ env.bucket_name }} --delete --exclude '.git/*' --size-only --region us-east-1
 
 
   invalidate-cloudfront-distribution:
@@ -115,14 +110,9 @@ jobs:
           sed -i "s|PLACEHOLDER_URL|${{ env.API_URL }}|" frontEnd/script.js
 
       - name: Sync Updated Script
-        uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          args: --follow-symlinks --delete --exclude '.git/*' --size-only
-          bucket: ${{ env.bucket_name }}
-          source-dir: frontEnd
-        env:
-          AWS_REGION: 'us-east-1'
-
+        run: |
+          aws s3 sync frontEnd s3://${{ env.bucket_name }} --delete --exclude '.git/*' --size-only --region us-east-1
+          
   cypress-tests:
     needs: update-script
     runs-on: ubuntu-latest
