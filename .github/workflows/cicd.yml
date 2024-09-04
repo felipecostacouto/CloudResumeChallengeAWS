@@ -71,12 +71,13 @@ jobs:
         id: tf
         run: terraform apply -auto-approve
 
-      - name: Set Outputs
-        id: outputs
+      - name: Set vars
+        id: vars
         run: |
-          echo "bucket_name=$(terraform output -raw bucket_name)" >> $GITHUB_ENV
-          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
-          echo "api_url=$(terraform output -raw api_url)" >> $GITHUB_ENV
+          echo "bucket_name=$(terraform output -raw bucket_name)" >> $GITHUB_OUTPUT
+          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+          echo "api_url=$(terraform output -raw api_url)" >> $GITHUB_OUTPUT
+        working-directory: ./terraform
 
   invalidate-cloudfront-distribution:
     needs: deploy
@@ -94,7 +95,7 @@ jobs:
       - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id ${{ needs.deploy.outputs.cloudfront_distribution_id }} \
+            --distribution-id ${{ steps.vars.outputs.cloudfront_distribution_id }} \
             --paths "/*" \
             --region us-east-1
 
@@ -104,11 +105,11 @@ jobs:
     steps:
       - name: Update script.js with API URL
         run: |
-          sed -i "s|PLACEHOLDER_URL|${{ needs.deploy.outputs.api_url }}|" frontEnd/script.js
+          sed -i "s|PLACEHOLDER_URL|${{ steps.vars.outputs.api_url }}|" frontEnd/script.js
 
       - name: Sync Updated Script
         run: |
-          aws s3 sync frontEnd s3://${{ needs.deploy.outputs.bucket_name }} --delete --exclude '.git/*' --size-only --region us-east-1
+          aws s3 sync frontEnd s3://${{ steps.vars.outputs.bucket_name }} --delete --exclude '.git/*' --size-only --region us-east-1
 
   cypress-tests:
     needs: update-script
@@ -125,7 +126,7 @@ jobs:
       - name: Run Cypress Tests
         run: npx cypress run --headless
         env:
-          API_URL: ${{ needs.deploy.outputs.api_url }}
+          API_URL: ${{ steps.vars.outputs.api_url }}
 
   cleanup:
     needs: 
