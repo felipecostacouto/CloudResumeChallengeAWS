@@ -47,9 +47,9 @@ jobs:
       id-token: write
       contents: read
     outputs:
-      bucket_name: ${{ steps.outputs.bucket_name }}
-      cloudfront_distribution_id: ${{ steps.outputs.cloudfront_distribution_id }}
-      api_url: ${{ steps.outputs.api_url }}
+      bucket_name: ${{ steps.tf.outputs.bucket_name }}
+      cloudfront_distribution_id: ${{ steps.tf.outputs.cloudfront_distribution_id }}
+      api_url: ${{ steps.tf.outputs.api_url }}
     steps:
       - uses: actions/checkout@v2
 
@@ -68,15 +68,15 @@ jobs:
         run: terraform init
 
       - name: Apply Terraform
-        id: apply
+        id: tf
         run: terraform apply -auto-approve
 
       - name: Set Outputs
         id: outputs
         run: |
-          echo "bucket_name=$(terraform output -raw bucket_name | tr -d '\r')" >> $GITHUB_ENV
-          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id | tr -d '\r')" >> $GITHUB_ENV
-          echo "api_url=$(terraform output -raw api_url | tr -d '\r')" >> $GITHUB_ENV
+          echo "bucket_name=$(terraform output -raw bucket_name)" >> $GITHUB_ENV
+          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
+          echo "api_url=$(terraform output -raw api_url)" >> $GITHUB_ENV
 
   invalidate-cloudfront-distribution:
     needs: deploy
