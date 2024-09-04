@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -31,9 +30,7 @@ jobs:
           pip install -U pytest boto3 moto
 
       - name: Run Python Tests
-        run: |
-          export AWS_DEFAULT_REGION='us-east-1'
-          python -m pytest test_lambda/test_lambda.py
+        run: python -m pytest test_lambda/test_lambda.py
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -49,6 +46,10 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    outputs:
+      bucket_name: ${{ steps.outputs.bucket_name }}
+      cloudfront_distribution_id: ${{ steps.outputs.cloudfront_distribution_id }}
+      api_url: ${{ steps.outputs.api_url }}
     steps:
       - uses: actions/checkout@v2
 
@@ -60,35 +61,22 @@ jobs:
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
       - name: Initialize Terraform
         run: terraform init
 
       - name: Apply Terraform
         id: apply
-        run: |
-          terraform apply -auto-approve
+        run: terraform apply -auto-approve
 
+      - name: Set Outputs
+        id: outputs
+        run: |
           echo "bucket_name=$(terraform output -raw bucket_name | tr -d '\r')" >> $GITHUB_ENV
           echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id | tr -d '\r')" >> $GITHUB_ENV
           echo "api_url=$(terraform output -raw api_url | tr -d '\r')" >> $GITHUB_ENV
-
-      - name: Save Environment Variables
-        run: |
-          echo "bucket_name=${{ env.bucket_name }}" > variables.env
-          echo "cloudfront_distribution_id=${{ env.cloudfront_distribution_id }}" >> variables.env
-          echo "api_url=${{ env.api_url }}" >> variables.env
-          
-        # Upload artifact to share variables between jobs
-      - name: Upload Environment Variables
-        uses: actions/upload-artifact@v3
-        with:
-            name: env_vars
-            path: variables.env
-
-      - name: Sync S3 Bucket
-        run: |
-          aws s3 sync frontEnd s3://${{ env.bucket_name }} --delete --exclude '.git/*' --size-only --region us-east-1
 
   invalidate-cloudfront-distribution:
     needs: deploy
@@ -103,18 +91,10 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-1
 
-      - name: Download Environment Variables
-        uses: actions/download-artifact@v3
-        with:
-          name: env_vars
-
-      - name: Load Environment Variables
-        run: source variables.env
-
       - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id ${{ env.cloudfront_distribution_id }} \
+            --distribution-id ${{ needs.deploy.outputs.cloudfront_distribution_id }} \
             --paths "/*" \
             --region us-east-1
 
@@ -122,34 +102,18 @@ jobs:
     needs: invalidate-cloudfront-distribution
     runs-on: ubuntu-latest
     steps:
-      - name: Download Environment Variables
-        uses: actions/download-artifact@v3
-        with:
-          name: env_vars
-
-      - name: Load Environment Variables
-        run: source variables.env
-
       - name: Update script.js with API URL
         run: |
-          sed -i "s|PLACEHOLDER_URL|${{ env.api_url }}|" frontEnd/script.js
+          sed -i "s|PLACEHOLDER_URL|${{ needs.deploy.outputs.api_url }}|" frontEnd/script.js
 
       - name: Sync Updated Script
         run: |
-          aws s3 sync frontEnd s3://${{ env.bucket_name }} --delete --exclude '.git/*' --size-only --region us-east-1
+          aws s3 sync frontEnd s3://${{ needs.deploy.outputs.bucket_name }} --delete --exclude '.git/*' --size-only --region us-east-1
 
   cypress-tests:
     needs: update-script
     runs-on: ubuntu-latest
     steps:
-      - name: Download Environment Variables
-        uses: actions/download-artifact@v3
-        with:
-          name: env_vars
-
-      - name: Load Environment Variables
-        run: source variables.env
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -161,7 +125,7 @@ jobs:
       - name: Run Cypress Tests
         run: npx cypress run --headless
         env:
-          API_URL: ${{ env.api_url }}
+          API_URL: ${{ needs.deploy.outputs.api_url }}
 
   cleanup:
     needs: 
@@ -187,5 +151,4 @@ jobs:
         run: terraform init
 
       - name: Terraform Destroy
-        run: |
-          terraform destroy -auto-approve
+        run: terraform destroy -auto-approve
