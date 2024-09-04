@@ -66,12 +66,10 @@ jobs:
 
       - name: Initialize Terraform
         run: terraform init
-        working-directory: ./terraform
 
       - name: Apply Terraform
         id: tf
         run: terraform apply -auto-approve
-        working-directory: ./terraform
 
       - name: Set vars
         id: vars
@@ -79,7 +77,6 @@ jobs:
           echo "bucket_name=$(terraform output bucket_name)" >> $GITHUB_OUTPUT
           echo "cloudfront_distribution_id=$(terraform output cloudfront_distribution_id)" >> $GITHUB_OUTPUT
           echo "api_url=$(terraform output api_url)" >> $GITHUB_OUTPUT
-        working-directory: ./terraform
 
   invalidate-cloudfront-distribution:
     needs: deploy
