@@ -6,17 +6,14 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 });
 
 describe('Views API Integration', () => {
-  const apiUrl = Cypress.env('API_URL');
+  const apiUrl = 'PLACEHOLDER_URL';
 
   beforeEach(() => {
     cy.visit('https://felipecostacouto.link');
   });
 
   it('should update the views with the API response', () => {
-    cy.intercept({
-      method: 'POST',
-      url: apiUrl
-    }, {
+    cy.intercept('POST', apiUrl, { 
       statusCode: 200,
       body: { body: 123 },
     }).as('postCounter');
@@ -29,10 +26,7 @@ describe('Views API Integration', () => {
   });
 
   it('should display an error message if the API request fails', () => {
-    cy.intercept({
-      method: 'POST',
-      url: apiUrl
-    }, {
+    cy.intercept('POST', apiUrl, {
       statusCode: 500,
       body: { error: 'Internal Server Error' },
     }).as('postCounter');
@@ -44,3 +38,4 @@ describe('Views API Integration', () => {
     cy.get('.counter-number').should('have.text', '👀 this page has been viewed Error (Internal Server Error) times.');
   });
 });
+

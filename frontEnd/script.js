@@ -1,5 +1,4 @@
-// This is the placeholder that will be replaced with the actual API URL
-const apiUrl = "YOUR_API_URL_HERE";
+const apiUrl = "PLACEHOLDER_URL";
 
 var typed = new Typed('#typed', {
     strings: ["DevOps Student.", "Learner.", "Cloud Enthusiast."],
