@@ -4,6 +4,7 @@ module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
     },
-    supportFile: false, // Disable the support file
+    supportFile: false,
+    specPattern: 'tests/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
   },
 });
