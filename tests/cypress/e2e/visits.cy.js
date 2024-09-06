@@ -10,14 +10,13 @@ describe('Views API Integration', () => {
 
   beforeEach(() => {
     cy.visit('https://felipecostacouto.link');
-    // Print the placeholder URL to the console
-    cy.log(`API URL: ${apiUrl}`);
-    console.log(`API URL: ${apiUrl}`); // This will log in the browser's developer console
+    // Use cy.task to log in headless mode
+    cy.task('log', `API URL: ${apiUrl}`);
   });
 
   it('should update the views with the API response', () => {
     cy.intercept({
-      method: 'POST',  // Moved POST method into the options object
+      method: 'POST',
       url: apiUrl
     }, { 
       statusCode: 200,
@@ -25,16 +24,18 @@ describe('Views API Integration', () => {
     }).as('postCounter');
 
     cy.window().then((win) => {
+      cy.spy(win, 'updateCounter').as('updateCounterSpy'); // Spy on the function to ensure it runs
       win.updateCounter(); 
     });
     
     cy.wait('@postCounter'); // Wait for the intercepted request to complete
     cy.get('.counter-number').should('have.text', '👀 this page has been viewed 123 times.');
+    cy.get('@updateCounterSpy').should('have.been.called'); // Ensure the function was called
   });
 
   it('should display an error message if the API request fails', () => {
     cy.intercept({
-      method: 'POST',  // Moved POST method into the options object
+      method: 'POST',
       url: apiUrl
     }, {
       statusCode: 500,
@@ -42,9 +43,12 @@ describe('Views API Integration', () => {
     }).as('postCounter');
 
     cy.window().then((win) => {
+      cy.spy(win, 'updateCounter').as('updateCounterSpy');
       win.updateCounter();
     });
 
+    cy.wait('@postCounter'); // Ensure we wait for the request
     cy.get('.counter-number').should('have.text', '👀 this page has been viewed Error (Internal Server Error) times.');
+    cy.get('@updateCounterSpy').should('have.been.called');
   });
 });
