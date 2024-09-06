@@ -9,20 +9,17 @@ def lambda_handler(event, context):
     headers = {
         "Content-Type": "application/json",
         "Access-Control-Allow-Headers": "Content-Type",
-        "Access-Control-Allow-Origin": "*",  # Allow all origins (or your domain)
+        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     }
     
     try:
-        # Retrieve the current view count
         response = table.get_item(Key={'id': '0'})
         views_count = response['Item']['views']
         views_count += 1
         
-        # Update the view count in DynamoDB
         table.put_item(Item={'id': '0', 'views': views_count})
 
-        # Return the response
         return {
             "statusCode": 200,
             "headers": headers,
