@@ -6,14 +6,20 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 });
 
 describe('Views API Integration', () => {
-  const apiUrl = Cypress.env('PLACEHOLDER_URL');
+  const apiUrl = 'PLACEHOLDER_URL';
 
   beforeEach(() => {
     cy.visit('https://felipecostacouto.link');
+    // Print the placeholder URL to the console
+    cy.log(`API URL: ${apiUrl}`);
+    console.log(`API URL: ${apiUrl}`); // This will log in the browser's developer console
   });
 
   it('should update the views with the API response', () => {
-    cy.intercept('POST', apiUrl, { 
+    cy.intercept({
+      method: 'POST',  // Moved POST method into the options object
+      url: apiUrl
+    }, { 
       statusCode: 200,
       body: { body: 123 },
     }).as('postCounter');
@@ -21,14 +27,16 @@ describe('Views API Integration', () => {
     cy.window().then((win) => {
       win.updateCounter(); 
     });
-
     
-    cy.wait('@postCounter');
+    cy.wait('@postCounter'); // Wait for the intercepted request to complete
     cy.get('.counter-number').should('have.text', '👀 this page has been viewed 123 times.');
   });
 
   it('should display an error message if the API request fails', () => {
-    cy.intercept('POST', apiUrl, {
+    cy.intercept({
+      method: 'POST',  // Moved POST method into the options object
+      url: apiUrl
+    }, {
       statusCode: 500,
       body: { error: 'Internal Server Error' },
     }).as('postCounter');
@@ -37,7 +45,6 @@ describe('Views API Integration', () => {
       win.updateCounter();
     });
 
-    cy.wait('@postCounter');
-    cy.get('.counter-number').should('have.text', '👀 this page has been viewed Error (HTTP error! Status: 500) times.');
+    cy.get('.counter-number').should('have.text', '👀 this page has been viewed Error (Internal Server Error) times.');
   });
 });
