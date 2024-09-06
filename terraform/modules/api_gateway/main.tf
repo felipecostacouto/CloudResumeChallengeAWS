@@ -16,6 +16,12 @@ resource "aws_api_gateway_method" "method" {
   resource_id   = aws_api_gateway_resource.resource.id
   http_method   = var.http_method
   authorization = "NONE"
+
+  request_parameters = {
+    "method.request.header.Access-Control-Allow-Headers" = true
+    "method.request.header.Access-Control-Allow-Methods" = true
+    "method.request.header.Access-Control-Allow-Origin"  = true
+  }
 }
 
 resource "aws_api_gateway_integration" "integration" {

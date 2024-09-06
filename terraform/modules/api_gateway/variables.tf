@@ -1,7 +1,7 @@
 variable "region" {
   description = "The AWS region to deploy the API Gateway"
   type        = string
-  default     = "sa-east-1"
+  default     = "us-east-1"
 }
 
 variable "api_name" {

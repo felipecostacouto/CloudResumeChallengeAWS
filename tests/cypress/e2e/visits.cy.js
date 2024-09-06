@@ -10,7 +10,7 @@ describe('Views API Integration', () => {
 
   beforeEach(() => {
     cy.visit('https://felipecostacouto.link');
-    // Use cy.task to log in headless mode
+    
     cy.task('log', `API URL: ${apiUrl}`);
   });
 
@@ -24,13 +24,13 @@ describe('Views API Integration', () => {
     }).as('postCounter');
 
     cy.window().then((win) => {
-      cy.spy(win, 'updateCounter').as('updateCounterSpy'); // Spy on the function to ensure it runs
+      cy.spy(win, 'updateCounter').as('updateCounterSpy'); 
       win.updateCounter(); 
     });
     
-    cy.wait('@postCounter'); // Wait for the intercepted request to complete
+    cy.wait('@postCounter');
     cy.get('.counter-number').should('have.text', '👀 this page has been viewed 123 times.');
-    cy.get('@updateCounterSpy').should('have.been.called'); // Ensure the function was called
+    cy.get('@updateCounterSpy').should('have.been.called');
   });
 
   it('should display an error message if the API request fails', () => {
@@ -47,7 +47,7 @@ describe('Views API Integration', () => {
       win.updateCounter();
     });
 
-    cy.wait('@postCounter'); // Ensure we wait for the request
+    cy.wait('@postCounter');
     cy.get('.counter-number').should('have.text', '👀 this page has been viewed Error (Internal Server Error) times.');
     cy.get('@updateCounterSpy').should('have.been.called');
   });

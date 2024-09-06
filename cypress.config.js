@@ -1,12 +1,12 @@
 const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({
-  defaultCommandTimeout: 10000, // Set default command timeout to 10 seconds
+  defaultCommandTimeout: 10000, 
   e2e: {
     setupNodeEvents(on, config) {
       on('task', {
         log(message) {
-          console.log(message); // Log message in the terminal
+          console.log(message); 
           return null;
         },
       });
