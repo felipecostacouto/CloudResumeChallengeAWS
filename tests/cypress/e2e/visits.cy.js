@@ -6,7 +6,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 });
 
 describe('Views API Integration', () => {
-  const apiUrl = 'PLACEHOLDER_URL';
+  const apiUrl = Cypress.env('PLACEHOLDER_URL');
 
   beforeEach(() => {
     cy.visit('https://felipecostacouto.link');
@@ -22,6 +22,8 @@ describe('Views API Integration', () => {
       win.updateCounter(); 
     });
 
+    
+    cy.wait('@postCounter');
     cy.get('.counter-number').should('have.text', '👀 this page has been viewed 123 times.');
   });
 
@@ -35,7 +37,7 @@ describe('Views API Integration', () => {
       win.updateCounter();
     });
 
-    cy.get('.counter-number').should('have.text', '👀 this page has been viewed Error (Internal Server Error) times.');
+    cy.wait('@postCounter');
+    cy.get('.counter-number').should('have.text', '👀 this page has been viewed Error (HTTP error! Status: 500) times.');
   });
 });
-
