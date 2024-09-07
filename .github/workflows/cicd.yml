@@ -114,7 +114,6 @@ jobs:
   cleanup:
     needs: 
       - deploy
-      - cypress-tests
     if: failure()  # Run only if any of the dependencies fail
     runs-on: ubuntu-latest
     steps:
