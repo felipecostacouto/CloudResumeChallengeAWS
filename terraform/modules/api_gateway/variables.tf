@@ -37,3 +37,9 @@ variable "lambda_function_name" {
   description = "The name of the Lambda function"
   type        = string
 }
+
+variable "rest_api_stage_name" {
+    type        = string
+    description = "The name of the API Gateway stage"
+    default     = "deploy"
+}
