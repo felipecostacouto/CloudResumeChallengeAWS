@@ -7,7 +7,7 @@ variable "region" {
 variable "api_name" {
   description = "The name of the API Gateway"
   type        = string
-  default     = "my-api-resume-challenge"
+  default     = "crc_api"
 }
 
 variable "api_description" {

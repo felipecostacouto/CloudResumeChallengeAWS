@@ -36,7 +36,7 @@ module "api_gateway" {
   lambda_function_arn  = module.lambda_function.lambda_function_arn
   api_name             = "crc_api"
   api_description      = "API for CRC Lambda"
-  api_path_part        = "{proxy+}"
+  api_path_part        = "views"
   http_method          = "POST"
 }
 
