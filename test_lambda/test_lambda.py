@@ -1,6 +1,6 @@
 import pytest
 from botocore.exceptions import ClientError
-from backEnd.lambda_handler import lambda_handler
+from backEnd.lambda_function import lambda_handler
 import json
 
 def get_counter():
@@ -21,8 +21,8 @@ def test_counter(monkeypatch):
     def mock_put_item(Item):
         return {}
 
-    monkeypatch.setattr('backEnd.lambda_handler.table.get_item', mock_get_item)
-    monkeypatch.setattr('backEnd.lambda_handler.table.put_item', mock_put_item)
+    monkeypatch.setattr('backEnd.lambda_function.table.get_item', mock_get_item)
+    monkeypatch.setattr('backEnd.lambda_function.table.put_item', mock_put_item)
 
     # Now compare the parsed view count
     assert get_counter()['views'] == visitor_count
@@ -38,8 +38,8 @@ def test_counter_dynamodb_error(monkeypatch):
     def mock_put_item(Item):
         return {}
 
-    monkeypatch.setattr('backEnd.lambda_handler.table.get_item', mock_get_item)
-    monkeypatch.setattr('backEnd.lambda_handler.table.put_item', mock_put_item)
+    monkeypatch.setattr('backEnd.lambda_function.table.get_item', mock_get_item)
+    monkeypatch.setattr('backEnd.lambda_function.table.put_item', mock_put_item)
 
     response = lambda_handler("", "")
     assert response['statusCode'] == 500
