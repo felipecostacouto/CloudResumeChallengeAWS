@@ -17,10 +17,3 @@ module.exports = defineConfig({
     specPattern: 'tests/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
   },
 });
-
-Cypress.on('uncaught:exception', (err, runnable) => {
-  if (err.message.includes("Bootstrap's JavaScript requires jQuery")) {
-    return false; 
-  }
-  return true;
-});
