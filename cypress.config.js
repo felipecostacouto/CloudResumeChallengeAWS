@@ -1,5 +1,5 @@
 const { defineConfig } = require('cypress');
-const apiUrl = "PLACEHOLDER_URL"; // Ensure this is replaced correctly
+const apiUrl = "https://PLACEHOLDER_URL"; // Ensure this is replaced correctly
 
 module.exports = defineConfig({
   defaultCommandTimeout: 10000, 
