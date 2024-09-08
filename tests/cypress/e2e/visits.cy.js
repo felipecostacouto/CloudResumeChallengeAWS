@@ -6,21 +6,26 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 });
 
 describe("Views API Integration", () => {
-  const apiUrl = 'PLACEHOLDER_URL'; // Replace with actual API URL
+  const apiUrl = "PLACEHOLDER_URL"; // Ensure this is replaced correctly
 
   it("should update the views with the API response", () => {
-    // First request to get the current view count
+    cy.log(`Testing with URL: ${apiUrl}`); // Log the URL being used
+
     cy.request("POST", apiUrl).then((response) => {
       expect(response.body.views).to.be.a("number");
       const initialCount = response.body.views;
 
-      // Perform the action that triggers the update
+      // Check if updateCounter exists and is callable
       cy.window().then((win) => {
-        cy.spy(win, 'updateCounter').as('updateCounterSpy');
-        win.updateCounter();
+        if (win.updateCounter) {
+          cy.spy(win, 'updateCounter').as('updateCounterSpy');
+          win.updateCounter(); // Trigger the counter update
+        } else {
+          throw new Error('updateCounter method is not defined on the window object');
+        }
       });
 
-      // Wait for the API call and verify the updated count
+      // Wait for the update to take effect
       cy.wait(1000); // Adjust the wait time if necessary
       cy.get('.counter-number').invoke('text').then((text) => {
         const numberMatch = text.match(/\d+/);
@@ -38,6 +43,8 @@ describe("Views API Integration", () => {
   });
 
   it("should display an error message if the API request fails", () => {
+    cy.log(`Testing with URL: ${apiUrl}`); // Log the URL being used
+
     cy.intercept({
       method: 'POST',
       url: apiUrl
@@ -47,8 +54,12 @@ describe("Views API Integration", () => {
     }).as('postCounter');
 
     cy.window().then((win) => {
-      cy.spy(win, 'updateCounter').as('updateCounterSpy');
-      win.updateCounter();
+      if (win.updateCounter) {
+        cy.spy(win, 'updateCounter').as('updateCounterSpy');
+        win.updateCounter(); // Trigger the counter update
+      } else {
+        throw new Error('updateCounter method is not defined on the window object');
+      }
     });
 
     cy.wait('@postCounter');
@@ -58,4 +69,5 @@ describe("Views API Integration", () => {
     cy.get('@updateCounterSpy').should('have.been.called');
   });
 });
+
 
