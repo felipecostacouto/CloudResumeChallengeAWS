@@ -6,12 +6,10 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 });
 
 describe("Views API Integration", () => {
-  const apiUrl = "PLACEHOLDER_URL"; // Ensure this is replaced correctly
 
   it("should update the views with the API response", () => {
-    cy.log(`Testing with URL: ${apiUrl}`); // Log the URL being used
 
-    cy.request("POST", apiUrl).then((response) => {
+    cy.request("POST", '/').then((response) => {
       expect(response.body.views).to.be.a("number");
       const initialCount = response.body.views;
 
@@ -34,7 +32,7 @@ describe("Views API Integration", () => {
       });
 
       // Perform another request to check the updated view count
-      cy.request("POST", apiUrl).then((response) => {
+      cy.request("POST", '/').then((response) => {
         expect(response.body.views).to.be.a("number");
         const updatedCount = response.body.views;
         expect(updatedCount).to.be.greaterThan(initialCount);
@@ -43,11 +41,10 @@ describe("Views API Integration", () => {
   });
 
   it("should display an error message if the API request fails", () => {
-    cy.log(`Testing with URL: ${apiUrl}`); // Log the URL being used
 
     cy.intercept({
       method: 'POST',
-      url: apiUrl
+      url: '/'
     }, {
       statusCode: 500,
       body: { error: 'Internal Server Error' },

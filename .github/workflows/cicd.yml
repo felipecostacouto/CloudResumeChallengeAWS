@@ -85,9 +85,9 @@ jobs:
         run: |
           sed -i "s|PLACEHOLDER_URL|${{ env.api_url }}|" frontEnd/script.js
 
-      - name: Update visits.cy.js with API URL
+      - name: Update cypress.config.js with API URL
         run: |
-          sed -i "s|PLACEHOLDER_URL|${{ env.api_url }}|" tests/cypress/e2e/visits.cy.js
+          sed -i "s|PLACEHOLDER_URL|${{ env.api_url }}|" cypress.config.js
 
       - name: Sync Updated Script
         run: |
