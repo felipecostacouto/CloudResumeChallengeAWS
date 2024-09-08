@@ -1,6 +1,7 @@
 import json
 import boto3
 from botocore.exceptions import ClientError
+from decimal import Decimal
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table("crc_dynamodb")
@@ -23,7 +24,7 @@ def lambda_handler(event, context):
         return {
             "statusCode": 200,
             "headers": headers,
-            "body": json.dumps({"views": views_count})
+            "body": json.dumps({"views": int(views_count)})  # Convert Decimal to int
         }
 
     except ClientError as e:
