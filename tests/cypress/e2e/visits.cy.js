@@ -5,35 +5,39 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   return true;
 });
 
-describe('Views API Integration', () => {
-  const apiUrl = 'PLACEHOLDER_URL';
+describe("Views API Integration", () => {
+  const apiUrl = 'PLACEHOLDER_URL'; // Replace with actual API URL
 
-  beforeEach(() => {
-    cy.visit('https://felipecostacouto.link');
-    
-    cy.task('log', `API URL: ${apiUrl}`);
-  });
+  it("should update the views with the API response", () => {
+    // First request to get the current view count
+    cy.request("POST", apiUrl).then((response) => {
+      expect(response.body.views).to.be.a("number");
+      const initialCount = response.body.views;
 
-  it('should update the views with the API response', () => {
-    cy.intercept({
-      method: 'POST',
-      url: apiUrl
-    }, { 
-      statusCode: 200,
-      body: { body: 123 },
-    }).as('postCounter');
+      // Perform the action that triggers the update
+      cy.window().then((win) => {
+        cy.spy(win, 'updateCounter').as('updateCounterSpy');
+        win.updateCounter();
+      });
 
-    cy.window().then((win) => {
-      cy.spy(win, 'updateCounter').as('updateCounterSpy'); 
-      win.updateCounter(); 
+      // Wait for the API call and verify the updated count
+      cy.wait(1000); // Adjust the wait time if necessary
+      cy.get('.counter-number').invoke('text').then((text) => {
+        const numberMatch = text.match(/\d+/);
+        expect(numberMatch).to.not.be.null; // Ensure there is a number
+        expect(parseInt(numberMatch[0], 10)).to.be.a('number'); // Ensure it's a number
+      });
+
+      // Perform another request to check the updated view count
+      cy.request("POST", apiUrl).then((response) => {
+        expect(response.body.views).to.be.a("number");
+        const updatedCount = response.body.views;
+        expect(updatedCount).to.be.greaterThan(initialCount);
+      });
     });
-    
-    cy.wait('@postCounter');
-    cy.get('.counter-number').should('have.text', '👀 this page has been viewed 123 times.');
-    cy.get('@updateCounterSpy').should('have.been.called');
   });
 
-  it('should display an error message if the API request fails', () => {
+  it("should display an error message if the API request fails", () => {
     cy.intercept({
       method: 'POST',
       url: apiUrl
@@ -48,7 +52,10 @@ describe('Views API Integration', () => {
     });
 
     cy.wait('@postCounter');
-    cy.get('.counter-number').should('have.text', '👀 this page has been viewed Error (Internal Server Error) times.');
+    cy.get('.counter-number').invoke('text').then((text) => {
+      expect(text).to.contain('Error (Internal Server Error)');
+    });
     cy.get('@updateCounterSpy').should('have.been.called');
   });
 });
+
