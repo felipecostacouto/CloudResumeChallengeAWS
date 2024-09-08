@@ -1,4 +1,4 @@
-const apiUrl = "PLACEHOLDER_URL";
+const apiUrl = "PLACEHOLDER_URL"; // Make sure this is updated with your API URL
 
 var typed = new Typed('#typed', {
     strings: ["DevOps Student.", "Learner.", "Cloud Enthusiast."],
@@ -13,7 +13,6 @@ var typed2 = new Typed('#typed_2', {
     backSpeed: 50,
     loop: true
 });
-
 
 const counter = document.querySelector(".counter-number");
 
@@ -33,10 +32,10 @@ async function updateCounter() {
         console.log('API Response:', data); // Log the response data
 
         // Use the response body directly
-        if (typeof data.body === 'number') {
-            counter.innerHTML = `👀 this page has been viewed ${data.body} times.`;
+        if (data && data.views !== undefined) {
+            counter.innerHTML = `👀 this page has been viewed ${data.views} times.`;
         } else {
-            throw new Error('Invalid data format in body');
+            throw new Error('Invalid data format in response body');
         }
     } catch (error) {
         console.error('Error fetching views:', error);
