@@ -1,7 +1,7 @@
 # Cloud Resume Challenge (AWS Version)
 
 ## Current Status
-The project is nearly complete, with most components functioning. The final step involves finishing the CI/CD setup in GitHub Actions to automate deployments and ensure smooth integration.
+The project is live, here is my hosted website <https://felipecostacouto.link/>
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -13,19 +13,21 @@ The project is nearly complete, with most components functioning. The final step
 - [Blog Post](#blog-post)
 
 ## Introduction
-Welcome to my Cloud Resume Challenge (AWS Version)! This project showcases the deployment of a personal resume site using various AWS services. You can check out the website here: [Cloud Resume Challenge](https://cloudresumechallenge.dev/docs/the-challenge/aws/).
+Welcome to my Cloud Resume Challenge (AWS Version)! This project showcases the deployment of a personal resume site using various AWS services. You can check out the website that explains the challenger here: [Cloud Resume Challenge](https://cloudresumechallenge.dev/docs/the-challenge/aws/).
 
 ## Project Overview
 The Cloud Resume Challenge involves creating a resume website and deploying it on the cloud using AWS services. The project includes front-end development, back-end services, infrastructure as code, and continuous integration/continuous deployment (CI/CD).
 
 ## Architecture Diagram
-(Include an architecture diagram here to visualize the AWS services and how they interact.)
+
+![AWS Cloud Architecture diagram for Cloud Resume Challenge.](/docs/archdiagram/CRC.drawio.png) 
 
 ## Prerequisites
 - AWS Account
 - Basic understanding of HTML, CSS, and JavaScript
-- Familiarity with AWS services (S3, Lambda, API Gateway, DynamoDB, Route 53)
+- Familiarity with AWS services (S3, Lambda, API Gateway, DynamoDB, Route 53, ACM, IAM)
 - Git and GitHub account
+- Some Python Knowledge
 - Terraform installed on your local machine
 - AWS CLI configured with your credentials
 
@@ -46,7 +48,7 @@ The Cloud Resume Challenge involves creating a resume website and deploying it o
 
 ### Requirements
 
-To complete the Cloud Resume Challenge (AWS Version), please adhere to the following requirements:
+To complete the Cloud Resume Challenge I used the following requirements:
 
 1. **HTML**: 
    - Your resume must be created using HTML. ✅
@@ -58,7 +60,7 @@ To complete the Cloud Resume Challenge (AWS Version), please adhere to the follo
    - Host your HTML resume on Amazon S3 as a static website. Ensure it uses HTTPS by configuring CloudFront. ✅
 
 4. **DNS**: 
-   - Set up a custom domain for your CloudFront distribution using Route 53 or another DNS provider. ✅
+   - Set up a custom domain for your CloudFront distribution using Route 53. ✅
 
 5. **JavaScript**: 
    - Implement a visitor counter on your webpage. ✅
@@ -79,7 +81,7 @@ To complete the Cloud Resume Challenge (AWS Version), please adhere to the follo
     - Define and manage your infrastructure using Terraform for automated deployment and scalability. ✅
 
 11. **CI/CD with GitHub Actions**: 
-    - Set up GitHub Actions to automatically deploy your website code, run tests, invalidate cache, and deploy the infrastructure defined in Terraform. 🔄 *In Progress*
+    - Set up GitHub Actions to automatically deploy your website code, run tests, invalidate cache, and deploy the infrastructure defined in Terraform. ✅
 
 ## Blog Post
 🔄 To be created
