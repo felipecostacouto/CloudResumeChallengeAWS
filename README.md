@@ -84,6 +84,6 @@ To complete the Cloud Resume Challenge I used the following requirements:
     - Set up GitHub Actions to automatically deploy your website code, run tests, invalidate cache, and deploy the infrastructure defined in Terraform. ✅
 
 ## Blog Post
-🔄 To be created
+[Troubleshooting Your Way Through the Cloud Resume Challenge](https://dev.to/felipe_costacouto/troubleshooting-your-way-through-the-cloud-resume-challenge-59c3)
 
 ---
